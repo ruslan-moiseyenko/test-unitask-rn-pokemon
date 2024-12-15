@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/Colors";
 import { ActivityIndicator } from "react-native";
 
 interface LoadingSpinnerProps {
@@ -7,5 +8,5 @@ interface LoadingSpinnerProps {
 
 export const LoadingSpinner = ({
   size = "large",
-  color = "#f3ce43"
+  color = COLORS.accent
 }: LoadingSpinnerProps) => <ActivityIndicator size={size} color={color} />;

@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { PokemonDetail } from "../types/pokemon";
+import { COLORS } from "@/constants/Colors";
 
 interface PokemonTypesProps {
   types: PokemonDetail["types"];
@@ -34,13 +35,13 @@ const styles = StyleSheet.create({
     gap: 10
   },
   typeTag: {
-    backgroundColor: "#f3ce43",
+    backgroundColor: COLORS.accent,
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 15
   },
   typeText: {
-    color: "white",
+    color: COLORS.background,
     textTransform: "capitalize"
   }
 });

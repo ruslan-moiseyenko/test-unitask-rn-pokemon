@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/Colors";
 import { StyleSheet, View, Text } from "react-native";
 
 interface ErrorMessageProps {
@@ -13,7 +14,7 @@ export const ErrorMessage = ({ message }: ErrorMessageProps) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.background,
     padding: 10
   },
   errorText: {

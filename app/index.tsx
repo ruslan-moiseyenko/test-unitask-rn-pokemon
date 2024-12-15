@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { useGetPokemonsQuery } from "@/store/api";
+import { useEffect, useState } from "react";
+import { Button, StyleSheet, View } from "react-native";
+import { useGetPokemonBatchQuery, useGetPokemonsQuery } from "@/store/api";
 import { SearchBar } from "@/components/SearchBar";
 import { PokemonList } from "@/components/PokemonList";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useDispatch, useSelector } from "react-redux";
-import { addPokemon } from "@/store/pokemonSlice";
-import { Pokemon } from "@/types/pokemon";
+import {
+  addPokemon,
+  addPokemonDetails,
+  clearAllData
+} from "@/store/pokemonSlice";
 import { RootState } from "@/store";
-import { ErrorMessage } from "@/components/ErrorMessage";
 import { useSearch } from "@/hooks/useSearch";
+import { COLORS } from "@/constants/Colors";
+import { selectFilteredPokemon } from "@/store/pokemonSelectors";
 
 const ITEMS_PER_PAGE = 20;
 export default function Home() {
@@ -24,46 +28,76 @@ export default function Home() {
 
   const { inputValue, handleSearch } = useSearch(searchTerm);
 
-  const { data, error, isLoading, isFetching } = useGetPokemonsQuery({
+  const [currentBatch, setCurrentBatch] = useState<string[]>([]);
+
+  const {
+    data: pokemonListData,
+    error: listError,
+    isLoading,
+    isFetching: isFetchingList
+  } = useGetPokemonsQuery({
     offset: page * ITEMS_PER_PAGE,
     limit: ITEMS_PER_PAGE
   });
 
-  useEffect(() => {
-    if (data?.results) {
-      dispatch(addPokemon(data.results));
-    }
-  }, [data?.results, dispatch]);
+  const { data: detailsData, isLoading: isLoadingDetails } =
+    useGetPokemonBatchQuery(currentBatch, {
+      skip: currentBatch.length === 0
+    });
 
-  const handleLoadMore = useCallback(() => {
-    if (!isFetching && data?.nextOffset !== null) {
+  useEffect(() => {
+    if (pokemonListData?.results) {
+      dispatch(addPokemon(pokemonListData.results));
+      setCurrentBatch(pokemonListData.results.map((pokemon) => pokemon.name));
+    }
+  }, [pokemonListData?.results, dispatch]);
+
+  useEffect(() => {
+    if (detailsData) {
+      dispatch(addPokemonDetails(detailsData));
+      setCurrentBatch([]);
+    }
+  }, [detailsData, dispatch]);
+
+  const handleLoadMore = () => {
+    if (
+      !isFetchingList &&
+      !isLoadingDetails &&
+      pokemonListData?.nextOffset !== null
+    ) {
       setPage((prev) => prev + 1);
     }
-  }, []);
+  };
 
-  if (error) {
-    return <ErrorMessage message="Error loading Pokemons!" />;
+  if (listError) {
+    return null;
   }
+
+  const filteredPokemon = useSelector(selectFilteredPokemon);
 
   if (isLoading && allPokemon.length === 0) {
     return <LoadingSpinner size="large" color="#f4511e" />;
   }
 
-  const filteredPokemon = searchTerm
-    ? allPokemon.filter((pokemon: Pokemon) =>
-        pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : allPokemon;
+  const handleClearData = () => {
+    dispatch(clearAllData());
+    setPage(0);
+  };
 
   return (
     <View style={styles.container}>
+      <Button
+        title="Clear All Data"
+        onPress={handleClearData}
+        color={COLORS.accentSecondary}
+      />
       <SearchBar value={inputValue} onChangeText={handleSearch} />
 
       {filteredPokemon && (
         <PokemonList
           pokemon={filteredPokemon}
           onLoadMore={handleLoadMore}
-          isLoading={isLoading || isFetching}
+          isLoading={isLoading || isFetchingList}
         />
       )}
     </View>
@@ -72,7 +106,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.background,
     padding: 10
   }
 });

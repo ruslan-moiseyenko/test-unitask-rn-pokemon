@@ -1,6 +1,7 @@
 import { StyleSheet, TouchableOpacity, Image, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { Pokemon } from "../types/pokemon";
+import { COLORS } from "@/constants/Colors";
 
 interface PokemonCardProps {
   pokemon: Pokemon;
@@ -12,7 +13,7 @@ export const PokemonCard = ({ pokemon }: PokemonCardProps) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/${pokemon.id}`)}
+      onPress={() => router.push(`/${pokemon.name}`)}
     >
       <Image source={{ uri: pokemon.image }} style={styles.image} />
       <Text style={styles.name}>{pokemon.name}</Text>
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 5,
     padding: 10,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: COLORS.backgroundSecondary,
     borderRadius: 10,
     alignItems: "center"
   },
@@ -41,6 +42,6 @@ const styles = StyleSheet.create({
     marginTop: 5
   },
   id: {
-    color: "#666"
+    color: COLORS.textSecondary
   }
 });

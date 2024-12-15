@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/Colors";
 import { View, Text, Image, StyleSheet } from "react-native";
 
 interface PokemonHeaderProps {
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
   },
   id: {
     fontSize: 18,
-    color: "#666",
+    color: COLORS.textSecondary,
     marginBottom: 20
   }
 });
