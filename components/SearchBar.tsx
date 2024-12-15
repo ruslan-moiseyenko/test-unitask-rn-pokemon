@@ -9,7 +9,7 @@ export const SearchBar = ({ value, onChangeText }: SearchBarProps) => {
   return (
     <TextInput
       style={styles.input}
-      placeholder="Search Pokemon..."
+      placeholder="Search Pokemon by name..."
       value={value}
       onChangeText={onChangeText}
     />

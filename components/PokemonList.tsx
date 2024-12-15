@@ -20,7 +20,7 @@ export const PokemonList = ({
     renderItem={({ item }) => <PokemonCard pokemon={item} />}
     keyExtractor={(item) => item.id.toString()}
     onEndReached={onLoadMore}
-    onEndReachedThreshold={0.5}
+    onEndReachedThreshold={0.2}
     ListFooterComponent={() => (isLoading ? <LoadingSpinner /> : null)}
   />
 );

@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useGetPokemonsQuery } from "@/store/api";
 import { SearchBar } from "@/components/SearchBar";
 import { PokemonList } from "@/components/PokemonList";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useDispatch, useSelector } from "react-redux";
-import { addPokemon, setSearchTerm } from "@/store/pokemonSlice";
+import { addPokemon } from "@/store/pokemonSlice";
 import { Pokemon } from "@/types/pokemon";
 import { RootState } from "@/store";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { useSearch } from "@/hooks/useSearch";
 
 const ITEMS_PER_PAGE = 20;
 export default function Home() {
@@ -20,6 +22,8 @@ export default function Home() {
   );
   const [page, setPage] = useState(0);
 
+  const { inputValue, handleSearch } = useSearch(searchTerm);
+
   const { data, error, isLoading, isFetching } = useGetPokemonsQuery({
     offset: page * ITEMS_PER_PAGE,
     limit: ITEMS_PER_PAGE
@@ -31,18 +35,14 @@ export default function Home() {
     }
   }, [data?.results, dispatch]);
 
-  const handleSearch = (text: string) => {
-    dispatch(setSearchTerm(text));
-  };
-
-  const handleLoadMore = () => {
+  const handleLoadMore = useCallback(() => {
     if (!isFetching && data?.nextOffset !== null) {
       setPage((prev) => prev + 1);
     }
-  };
+  }, []);
 
   if (error) {
-    return null;
+    return <ErrorMessage message="Error loading Pokemons!" />;
   }
 
   if (isLoading && allPokemon.length === 0) {
@@ -57,13 +57,13 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <SearchBar value={searchTerm} onChangeText={handleSearch} />
+      <SearchBar value={inputValue} onChangeText={handleSearch} />
 
       {filteredPokemon && (
         <PokemonList
           pokemon={filteredPokemon}
           onLoadMore={handleLoadMore}
-          isLoading={isFetching}
+          isLoading={isLoading || isFetching}
         />
       )}
     </View>
